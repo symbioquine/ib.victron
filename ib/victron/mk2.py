@@ -214,14 +214,17 @@ class MK2(object):
         return ''.join(buf).encode('utf-8')
 
     def readResult(self):
-        l = ord(self.port.read(1))
+        length_byte = self.port.read(1)
+        length = ord(length_byte)
 
         # Read l+1 bytes, +1 for the checksum
-        data = self.port.read(l+1)
+        data = self.port.read(length + 1)
+
+        full_message = length_byte + data
 
         # Check checksum
-        if sum([ord(x) for x in (data + chr(l))])%256 != 0:
-            D('<e', chr(l) + data)
+        if sum([ord(x) for x in full_message])%256 != 0:
+            D('<e', full_message)
             raise ValueError("Checksum failed")
 
         return data
