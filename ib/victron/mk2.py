@@ -223,7 +223,7 @@ class MK2(object):
         full_message = length_byte + data
 
         # Check checksum
-        if sum([ord(x) for x in full_message])%256 != 0:
+        if sum([x for x in full_message])%256 != 0:
             D('<e', full_message)
             raise ValueError("Checksum failed")
 
