@@ -42,7 +42,7 @@ class reify(object):
         return val
 
 def D(d, data):
-    print(d, ' '.join(['%02X' % ord(x) for x in data]))
+    print(d, ' '.join(['%02X' % x for x in data]))
 
 states = {
     (0, 0): 'down',
@@ -335,13 +335,13 @@ class MK2(object):
             data = self.port.read(9)
 
         # Check length and marker
-        assert data[0] == '\x07'
-        assert data[1] == '\xFF'
-        assert data[2] == 'V'
+        assert data[0] == b'\x07'
+        assert data[1] == b'\xFF'
+        assert data[2] == b'V'
 
         # Check checksum
-        if sum([ord(x) for x in data])%256 != 0:
-            D('<e', chr(l) + data)
+        if sum([x for x in data])%256 != 0:
+            D('<e', data)
             raise ValueError("Checksum failed")
 
         return unpack('<I', data[3:7])[0]
@@ -356,7 +356,7 @@ class MK2(object):
                 self.port.reset_input_buffer()
                 break
 
-            if data[0] != '\xFF' or data[1] != 'V':
+            if data[0] != b'\xFF' or data[1] != b'V':
                 D('discarded non-version frame', data)
 
 class MK2Thread(Thread, MK2):
