@@ -215,10 +215,17 @@ class MK2(object):
 
     def readResult(self):
         length_byte = self.port.read(1)
+
+        if not len(length_byte):
+            raise ValueError("No response length read from device")
+
         length = ord(length_byte)
 
         # Read l+1 bytes, +1 for the checksum
         data = self.port.read(length + 1)
+
+        if len(data) != (length + 1):
+            raise ValueError("Response from device did not match expected length")
 
         full_message = length_byte + data
 
