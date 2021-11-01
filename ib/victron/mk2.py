@@ -211,7 +211,7 @@ class MK2(object):
         buf.extend(data)
         checksum = 256 - sum([ord(x) for x in buf])%256
         buf.append(chr(checksum))
-        return ''.join(buf)
+        return ''.join(buf).encode('utf-8')
 
     def readResult(self):
         l = ord(self.port.read(1))
