@@ -206,12 +206,12 @@ class MK2(object):
 
     def makeCommand(self, command, data=''):
         length = len(command) + len(data) + 1
-        buf = [chr(length), chr(0xFF)]
-        buf.extend(command)
-        buf.extend(data)
-        checksum = 256 - sum([ord(x) for x in buf])%256
-        buf.append(chr(checksum))
-        return ''.join(buf).encode('utf-8')
+        buf = [length, 0xFF]
+        buf.extend(map(ord, command))
+        buf.extend(map(ord, data))
+        checksum = 256 - sum(buf) % 256
+        buf.append(checksum)
+        return bytes(buf)
 
     def readResult(self):
         length_byte = self.port.read(1)
@@ -242,7 +242,7 @@ class MK2(object):
             self.port.write(v)
             while True:
                 data = self.readResult()
-                if data[0] != '\xFF' or data[1] != 'V':
+                if data[0] != 0xFF or data[1:2] != b'V':
                     # It's not a version frame
                     break
         return data
@@ -256,8 +256,8 @@ class MK2(object):
     def dc_info(self):
         data = self.communicate('F', '\x00')
         ubat = unpack('<H', data[6:8])[0]
-        ibat = unpack('<i', data[8:11] + ('\0' if data[10] < '\x80' else '\xff'))[0]
-        icharge = unpack('<i', data[11:14] + ('\0' if data[13] < '\x80' else '\xff'))[0]
+        ibat = unpack('<i', data[8:11] + bytes([0x0] if data[10] < 0x80 else [0xff]))[0]
+        icharge = unpack('<i', data[11:14] + bytes([0x0] if data[13] < 0x80 else [0xff]))[0]
         return DataObject({
             'ubat': (ubat+self.ubat_offset) * self.scale(self.ubat_scale),
             'ibat': (ibat+self.ibat_offset) * self.scale(self.ibat_scale),
