@@ -286,8 +286,8 @@ class MK2(object):
 
     def led_info(self):
         data = self.communicate('L')
-        status = ord(data[2])
-        flash = ord(data[3])
+        status = data[2]
+        flash = data[3]
         return DataObject({
             'mains': bool(status & 1),
             'absorption': bool(status & 2),
