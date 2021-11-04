@@ -335,9 +335,9 @@ class MK2(object):
             data = self.port.read(9)
 
         # Check length and marker
-        assert data[0] == b'\x07'
-        assert data[1] == b'\xFF'
-        assert data[2] == b'V'
+        assert data[0] == 0x07
+        assert data[1] == 0xFF
+        assert data[2:3] == b'V'
 
         # Check checksum
         if sum([x for x in data])%256 != 0:
@@ -356,7 +356,7 @@ class MK2(object):
                 self.port.reset_input_buffer()
                 break
 
-            if data[0] != b'\xFF' or data[1] != b'V':
+            if data[0] != 0xFF or data[1:2] != b'V':
                 D('discarded non-version frame', data)
 
 class MK2Thread(Thread, MK2):
